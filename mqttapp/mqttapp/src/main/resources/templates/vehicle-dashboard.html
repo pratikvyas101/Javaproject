@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Vehicle State Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-header h1 {
+            margin: 0;
+            color: #333;
+            font-size: 32px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .dashboard-card {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .dashboard-card h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #555;
+        }
+
+        .dashboard-card p {
+            font-size: 24px;
+            color: #333;
+            margin: 10px 0 0;
+        }
+
+        .status-good {
+            color: #4caf50;
+        }
+
+        .status-warning {
+            color: #ff9800;
+        }
+
+        .status-danger {
+            color: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Vehicle State Dashboard</h1>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Cards for vehicle data -->
+            <div class="dashboard-card">
+                <h2>Miles Driven</h2>
+                <p id="miles-driven">1200 mi</p>
+            </div>
+
+            <div class="dashboard-card">
+                <h2>Engine Status</h2>
+                <p id="engine-status" class="status-good">On</p>
+            </div>
+
+            <div class="dashboard-card">
+                <h2>AC State</h2>
+                <p id="ac-state" class="status-warning">Off</p>
+            </div>
+
+            <div class="dashboard-card">
+                <h2>Door Status</h2>
+                <p id="door-status" class="status-warning">Unlocked</p>
+            </div>
+
+            <div class="dashboard-card">
+                <h2>Warning Status</h2>
+                <p id="warning-status" class="status-danger">Low Fuel</p>
+            </div>
+
+            <div class="dashboard-card">
+                <h2>Security Alarm</h2>
+                <p id="security-alarm" class="status-good">Armed</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stompClient = null;
+
+        function connectWebSocket() {
+            const socket = new SockJS('/websocket-endpoint');
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function () {
+            	stompClient.subscribe('/topic/vehicle-state', function (message) {
+            	    console.log('Received data:', message.body); // Log received data
+            	    const dataArray = JSON.parse(message.body); // Parse the received data
+
+            	    // Get the container for the cards
+            	    const messagesDiv = document.querySelector('.dashboard-grid');
+
+            	    // Clear the previous data
+            	    messagesDiv.innerHTML = '';
+
+            	    // Loop through the array and update the cards
+            	    dataArray.forEach((data, index) => {
+            	        const card = document.createElement('div');
+            	        card.className = 'dashboard-card';
+
+            	        card.innerHTML = `
+            	            <h2>Vehicle ${index + 1}</h2>
+            	            <p><strong>Miles Driven:</strong> ${data.milesDriven} mi</p>
+            	            <p><strong>Engine Status:</strong> ${data.engineStatus}</p>
+            	            <p><strong>AC State:</strong> ${data.acState}</p>
+            	            <p><strong>Door Status:</strong> ${data.doorStatus}</p>
+            	            <p><strong>Warning Status:</strong> ${data.warningStatus}</p>
+            	            <p><strong>Security Alarm:</strong> ${data.securityAlarm}</p>
+            	            <p><strong>Timestamp:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
+            	        `;
+
+            	        messagesDiv.appendChild(card);
+            	    });
+            	});
+
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', connectWebSocket);
+    </script>
+</body>
+</html>
