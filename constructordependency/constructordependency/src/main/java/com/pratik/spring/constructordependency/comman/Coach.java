@@ -1,4 +1,4 @@
-package com.pratik.spring.constructordependency;
+package com.pratik.spring.constructordependency.comman;
 
 public interface Coach {
 	
