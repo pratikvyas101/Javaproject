@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>MQTT Subscribed Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 50px; /* Small height to display one message only */
+            overflow: hidden;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>MQTT Subscribed Data</h1>
+    <p>Subscribed to MQTT Topic: <strong>Test3</strong></p>
+
+    <div id="messages">
+        <!-- Placeholder for the latest message -->
+        <p><strong>Waiting for data...</strong></p>
+    </div>
+
+    <script>
+        let stompClient = null;
+
+        function connectWebSocket() {
+            const socket = new SockJS('/websocket-endpoint'); // WebSocket connection to Spring Boot endpoint
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function (frame) {
+                console.log('Connected to WebSocket: ' + frame);
+
+                // Subscribe to the topic /topic/messages
+                stompClient.subscribe('/topic/messages', function (message) {
+                    const payload = message.body;
+
+                    // Log received message for debugging
+                    console.log('Received message:', payload);
+
+                    // Update the content of the messages div with the latest message
+                    const messagesDiv = document.getElementById('messages');
+                    messagesDiv.innerHTML = ''; // Clear the previous message
+                    const newMessage = document.createElement('p');
+                    newMessage.textContent = payload;
+                    messagesDiv.appendChild(newMessage);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', connectWebSocket);
+    </script>
+</body>
+</html>

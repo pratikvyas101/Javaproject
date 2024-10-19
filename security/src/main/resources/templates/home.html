@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+				xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="ISO-8859-1">
+<title>Spring Security Demo</title>
+</head>
+<body>
+    <h3>Spring Security </h3>
+    <p>My Name is Pratik Vyas </p>
+    <hr>
+    <div sec:authorize="hasRole('MANAGER')">
+	    <p>
+	      <a th:href="@{/leaders}">Leadership  Meeting</a>
+	      (Only For Manager Peeps)
+	    
+	    </p>
+    </div>
+    <hr>
+    <div sec:authorize="hasRole('ADMIN')">
+	    <p>
+	    
+	    <a th:href="@{/systems}">IT System meeting</a>
+	    (only For ADMIN User)
+	    </p>
+    </div>
+    <p>
+    
+	    User : <span sec:authentication="principal.username" ></span>
+	    
+	    <br><br>
+	    
+	    Role(s):<span sec:authentication="principal.authorities"></span>
+	    
+    
+    </p>
+    
+    
+    <form action="#" th:action="@{/logout}" method="POST">
+    	
+     	<input type="submit" value="Logout" />
+    </form>
+</body>
+</html>
