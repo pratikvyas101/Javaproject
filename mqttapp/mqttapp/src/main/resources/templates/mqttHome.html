@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>MQTT with Cedalo</title>
+</head>
+<body>
+    <h1>MQTT Publisher</h1>
+    <form action="/publish" method="post">
+        <label for="topic">Topic:</label>
+        <input type="text" id="topic" name="topic" required>
+        <br><br>
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" required></textarea>
+        <br><br>
+        <button type="submit">Publish</button>
+    </form>
+    <p th:text="${status}"></p>
+</body>
+</html>
